@@ -11,7 +11,6 @@ if (isset($_POST["visit"])) {
     $dbname = "myDB";
     // Additional column names. id and timestamp are automatic.
     $columns = ["example"];
-    $column_vals = [];
 
     // Establish a connection
     $conn = new mysqli($servername, $username, $password, $dbname);
@@ -21,18 +20,21 @@ if (isset($_POST["visit"])) {
 
     // Construct the query
     foreach ($columns as $value) {
-        $bind .= "s";
-        array_push($column_vals, $_POST[$value]);
+        $column_vals[] = $_POST[$value];
+        echo "Name: ".$value." Value: ".$_POST[$value]."<br>";
     }
     $sql = "INSERT INTO SimpleWebStats (time, " . implode(", ", $columns);
     $sql .= ") VALUES (NOW(), ";
     $sql .= str_repeat("?, ", count($columns)-1) . "?)";
 
-    // Prepare statement and bind parameters
-    echo $sql;
+    // Prepare statement and bind paramet$conn->prepareers
+    echo $sql."<br>";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param(str_repeat("s", count($columns)), ...$column_vals);
     $stmt->execute();
+    if ($stmt->error) {
+        echo "Error: ".$stmt->error;
+    }
 
     $stmt->close();
     $conn->close();
