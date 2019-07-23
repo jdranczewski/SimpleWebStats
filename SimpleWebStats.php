@@ -20,23 +20,21 @@ if (isset($_POST["visit"])) {
     }
 
     // Construct the query
-    $sql = "INSERT INTO SimpleWebStats (";
-    $bind = "";
     foreach ($columns as $value) {
-        $sql += $value . ", ";
-        $bind += "s";
+        $bind .= "s";
         array_push($column_vals, $_POST[$value]);
     }
-    $sql += ") VALUES (";
-    foreach ($columns as $value) {
-        $sql += "?, ";
-    }
-    $sql += ")";
+    $sql = "INSERT INTO SimpleWebStats (time, " . implode(", ", $columns);
+    $sql .= ") VALUES (NOW(), ";
+    $sql .= str_repeat("?, ", count($columns)-1) . "?)";
 
     // Prepare statement and bind parameters
+    echo $sql;
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param($bind, ...$column_vals);
+    $stmt->bind_param(str_repeat("s", count($columns)), ...$column_vals);
+    $stmt->execute();
 
+    $stmt->close();
     $conn->close();
 } else { ?>
     This is a simple, non-intrusive, GDPR-compliant website analytics script.
