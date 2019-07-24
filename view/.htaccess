@@ -1,0 +1,4 @@
+AuthType Basic
+AuthName "Login to view the statistics"
+AuthUserFile /full/path/to/.htpasswd
+Require valid-user
