@@ -89,7 +89,12 @@ class Dataset {
                     }]
                 },
                 options: {
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        fontSize: 20,
+                        text: "User on mobile?"
+                    }
                 }
             });
             </script>
@@ -112,7 +117,12 @@ class Dataset {
                     }]
                 },
                 options: {
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        fontSize: 20,
+                        text: "Referrer"
+                    }
                 }
             });
             </script>
@@ -135,7 +145,12 @@ class Dataset {
                     }]
                 },
                 options: {
-                    maintainAspectRatio: false
+                    maintainAspectRatio: false,
+                    title: {
+                        display: true,
+                        fontSize: 20,
+                        text: "Language"
+                    }
                 }
             });
             </script>
