@@ -47,6 +47,9 @@ class Dataset {
         </div>
         <?php $visits = new Dataset($conn, "DATE_FORMAT(time, '%d-%m-%Y')", false) ?>
         <script>
+        var colours = ['#1f77b4dd', '#ff7f0edd', '#2ca02cdd', '#d62728dd',
+              '#9467bddd', '#8c564bdd', '#e377c2dd', '#7f7f7fdd',
+              '#bcbd22dd', '#17becfdd']
         var ctxv = document.getElementById('visits').getContext('2d');
         var VisitsChart = new Chart(ctxv, {
             type: 'line',
@@ -54,7 +57,9 @@ class Dataset {
                 labels: ["<?php echo implode('","', $visits->labels) ?>"],
                 datasets: [{
                     label: "User visits each day",
-                    data: [<?php echo implode(",", $visits->values) ?>]
+                    data: [<?php echo implode(",", $visits->values) ?>],
+                    borderColor: "#1f77b4",
+                    backgroundColor : "#1f77b450"
                 }]
             },
             options: {
@@ -85,7 +90,7 @@ class Dataset {
                     datasets: [{
                         label: "On mobile?",
                         data: [<?php echo implode(',', $mobile->values) ?>],
-                        "backgroundColor": ["rgb(255, 205, 86)", "rgb(54, 162, 235)"]
+                        "backgroundColor": colours
                     }]
                 },
                 options: {
@@ -113,7 +118,7 @@ class Dataset {
                     datasets: [{
                         label: "On mobile?",
                         data: [<?php echo implode(',', $referrer->values) ?>],
-                        "backgroundColor": ["rgb(255, 205, 86)", "rgb(54, 162, 235)"]
+                        "backgroundColor": colours
                     }]
                 },
                 options: {
@@ -141,7 +146,7 @@ class Dataset {
                     datasets: [{
                         label: "On mobile?",
                         data: [<?php echo implode(',', $lang->values) ?>],
-                        "backgroundColor": ["rgb(255, 205, 86)", "rgb(54, 162, 235)"]
+                        "backgroundColor": colours
                     }]
                 },
                 options: {
