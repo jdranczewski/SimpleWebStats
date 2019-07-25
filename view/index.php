@@ -10,6 +10,23 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
+
+// Function for getting data
+class Dataset {
+    function __construct($conn, $column, $sort=true) {
+        $sql = "SELECT " . $column . " AS label, COUNT(*) AS number FROM SimpleWebStats GROUP BY label";
+        if ($sort) {
+            $sql .= " ORDER BY number DESC";
+        }
+        $result = $conn->query($sql);
+        $this->labels = [];
+        $this->values = [];
+        while($row = $result->fetch_assoc()) {
+            $this->labels[] = $row["label"];
+            $this->values[] = $row["number"];
+        }
+    }
+}
 ?>
 
 <!doctype html>
@@ -28,25 +45,16 @@ if ($conn->connect_error) {
         <div id="visits-container">
             <canvas id="visits"></canvas>
         </div>
-        <?php
-        $sql = "SELECT DATE_FORMAT(time, '%d-%m-%Y') AS label, COUNT(*) AS number FROM SimpleWebStats GROUP BY DATE_FORMAT(time, '%d-%m-%Y')";
-        $result = $conn->query($sql);
-        $labels = [];
-        $values = [];
-        while($row = $result->fetch_assoc()) {
-            $labels[] = $row["label"];
-            $values[] = $row["number"];
-        }
-        ?>
+        <?php $visits = new Dataset($conn, "DATE_FORMAT(time, '%d-%m-%Y')", false) ?>
         <script>
         var ctxv = document.getElementById('visits').getContext('2d');
         var VisitsChart = new Chart(ctxv, {
             type: 'line',
             data: {
-                labels: ["<?php echo implode('","', $labels) ?>"],
+                labels: ["<?php echo implode('","', $visits->labels) ?>"],
                 datasets: [{
                     label: "User visits each day",
-                    data: [<?php echo implode(",", $values) ?>]
+                    data: [<?php echo implode(",", $visits->values) ?>]
                 }]
             },
             options: {
@@ -67,25 +75,16 @@ if ($conn->connect_error) {
             <div id="mobile-container">
                 <canvas id="mobile"></canvas>
             </div>
-            <?php
-            $sql = "SELECT mobile AS label, COUNT(*) AS number FROM SimpleWebStats GROUP BY mobile";
-            $result = $conn->query($sql);
-            $labels = [];
-            $values = [];
-            while($row = $result->fetch_assoc()) {
-                $labels[] = $row["label"];
-                $values[] = $row["number"];
-            }
-            ?>
+            <?php $mobile = new Dataset($conn, "mobile", false) ?>
             <script>
             var ctxm = document.getElementById('mobile').getContext('2d');
             var MobileChart = new Chart(ctxm, {
                 type: 'pie',
                 data: {
-                    labels: ["<?php echo implode('","', $labels) ?>"],
+                    labels: ["<?php echo implode('","', $mobile->labels) ?>"],
                     datasets: [{
                         label: "On mobile?",
-                        data: [<?php echo implode(',', $values) ?>],
+                        data: [<?php echo implode(',', $mobile->values) ?>],
                         "backgroundColor": ["rgb(255, 205, 86)", "rgb(54, 162, 235)"]
                     }]
                 },
@@ -99,25 +98,39 @@ if ($conn->connect_error) {
             <div id="referrer-container">
                 <canvas id="referrer"></canvas>
             </div>
-            <?php
-            $sql = "SELECT referrer AS label, COUNT(*) AS number FROM SimpleWebStats GROUP BY referrer";
-            $result = $conn->query($sql);
-            $labels = [];
-            $values = [];
-            while($row = $result->fetch_assoc()) {
-                $labels[] = $row["label"];
-                $values[] = $row["number"];
-            }
-            ?>
+            <?php $referrer = new Dataset($conn, "referrer") ?>
             <script>
             var ctxr = document.getElementById('referrer').getContext('2d');
             var ReferrerChart = new Chart(ctxr, {
                 type: 'pie',
                 data: {
-                    labels: ["<?php echo implode('","', $labels) ?>"],
+                    labels: ["<?php echo implode('","', $referrer->labels) ?>"],
                     datasets: [{
                         label: "On mobile?",
-                        data: [<?php echo implode(',', $values) ?>],
+                        data: [<?php echo implode(',', $referrer->values) ?>],
+                        "backgroundColor": ["rgb(255, 205, 86)", "rgb(54, 162, 235)"]
+                    }]
+                },
+                options: {
+                    maintainAspectRatio: false
+                }
+            });
+            </script>
+
+            <!-- Language -->
+            <div id="lang-container">
+                <canvas id="lang"></canvas>
+            </div>
+            <?php $lang = new Dataset($conn, "lang") ?>
+            <script>
+            var ctxr = document.getElementById('lang').getContext('2d');
+            var ReferrerChart = new Chart(ctxr, {
+                type: 'pie',
+                data: {
+                    labels: ["<?php echo implode('","', $lang->labels) ?>"],
+                    datasets: [{
+                        label: "On mobile?",
+                        data: [<?php echo implode(',', $lang->values) ?>],
                         "backgroundColor": ["rgb(255, 205, 86)", "rgb(54, 162, 235)"]
                     }]
                 },

@@ -25,3 +25,9 @@ html, body {
     position: relative;
     min-width: 0;
 }
+
+#lang-container {
+    flex: 1;
+    position: relative;
+    min-width: 0;
+}
