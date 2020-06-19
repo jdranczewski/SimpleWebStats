@@ -10,7 +10,7 @@ if (isset($_POST["visit"])) {
     $password = "password";
     $dbname = "myDB";
     // Additional column names. id and timestamp are automatic.
-    $columns = ["example"];
+    $columns = ["usertime", "lang", "mobile", "referrer"];
 
     // Establish a connection
     $conn = new mysqli($servername, $username, $password, $dbname);

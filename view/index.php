@@ -13,10 +13,13 @@ if ($conn->connect_error) {
 
 // Function for getting data
 class Dataset {
-    function __construct($conn, $column, $sort=true) {
+    function __construct($conn, $column, $sort=true, $timesort=false) {
         $sql = "SELECT " . $column . " AS label, COUNT(*) AS number FROM SimpleWebStats GROUP BY label";
         if ($sort) {
             $sql .= " ORDER BY number DESC";
+        }
+        if ($timesort) {
+            $sql .= " ORDER BY `time`";
         }
         $result = $conn->query($sql);
         $this->labels = [];
@@ -38,14 +41,14 @@ class Dataset {
         <meta name="description" content="View data collected by SimpleWebStats">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="view.css">
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0-rc.1/Chart.bundle.js"></script>
     </head>
     <body>
         <!-- Visits -->
         <div id="visits-container">
             <canvas id="visits"></canvas>
         </div>
-        <?php $visits = new Dataset($conn, "DATE_FORMAT(time, '%d-%m-%Y')", false) ?>
+        <?php $visits = new Dataset($conn, "DATE_FORMAT(time, '%Y-%m-%d')", false, true) ?>
         <script>
         var colours = ['#1f77b4dd', '#ff7f0edd', '#2ca02cdd', '#d62728dd',
               '#9467bddd', '#8c564bdd', '#e377c2dd', '#7f7f7fdd',
@@ -57,7 +60,12 @@ class Dataset {
                 labels: ["<?php echo implode('","', $visits->labels) ?>"],
                 datasets: [{
                     label: "User visits each day",
-                    data: [<?php echo implode(",", $visits->values) ?>],
+                    data: [<?php for ($i=0; $i<count($visits->values); $i++) { ?>
+                        {
+                            t: "<?php echo $visits->labels[$i] ?>",
+                            y: <?php echo $visits->values[$i] ?>
+                        },
+                    <?php } ?>],
                     borderColor: "#1f77b4",
                     backgroundColor : "#1f77b450"
                 }]
@@ -68,6 +76,9 @@ class Dataset {
                         ticks: {
                             beginAtZero: true
                         }
+                    }],
+                    xAxes: [{
+                        type: 'time'
                     }]
                 },
                 maintainAspectRatio: false
