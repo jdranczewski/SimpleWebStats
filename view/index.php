@@ -30,6 +30,39 @@ class Dataset {
         }
     }
 }
+
+class ViewsDataset extends Dataset {
+    function __construct($conn, $column) {
+        parent::__construct($conn, $column, false, true);
+        $this->old_labels = $this->labels;
+        $this->old_values = $this->values;
+        $mindate = new DateTime($this->labels[0]);
+        $maxdate = new DateTime(end($this->labels));
+        $this->labels = [];
+        $this->values = [];
+        $period = new DatePeriod(
+            $mindate,
+            new DateInterval('P1D'),
+            $maxdate->modify('+1 days')
+        );
+        $i = 0;
+        foreach ($period as $key => $value) {
+            $this->labels[] = $value->format("Y-m-d");
+            $found = false;
+            for ($j=$i; $j<count($this->old_labels); $j++) {
+                if ($this->old_labels[$j] == end($this->labels)) {
+                    $this->values[] = $this->old_values[$j];
+                    $i = $j;
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                $this->values[] = 0;
+            }
+        }
+    }
+}
 ?>
 
 <!doctype html>
@@ -48,7 +81,7 @@ class Dataset {
         <div id="visits-container">
             <canvas id="visits"></canvas>
         </div>
-        <?php $visits = new Dataset($conn, "DATE_FORMAT(time, '%Y-%m-%d')", false, true) ?>
+        <?php $visits = new ViewsDataset($conn, "DATE_FORMAT(time, '%Y-%m-%d')") ?>
         <script>
         var colours = ['#1f77b4dd', '#ff7f0edd', '#2ca02cdd', '#d62728dd',
               '#9467bddd', '#8c564bdd', '#e377c2dd', '#7f7f7fdd',
